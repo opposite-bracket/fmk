@@ -1,4 +1,4 @@
-package fmk
+package main
 
 import (
 	"github.com/julienschmidt/httprouter"
