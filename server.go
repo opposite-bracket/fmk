@@ -1,4 +1,4 @@
-package main
+package fmk
 
 import (
 	"github.com/julienschmidt/httprouter"
@@ -15,52 +15,54 @@ type IApi interface {
 	Run() error
 }
 
-type Api struct{}
-type Endpoint func(c *Context)
+type Endpoint func(c *Context) error
 
-type api struct {
+type Api struct {
 	router *httprouter.Router
 }
 
-func NewApi() *api {
+func NewApi() *Api {
 	r := httprouter.New()
 
-	return &api{r}
+	return &Api{r}
 }
 
-func (a *api) handler(method, url string, handler Endpoint) {
+func (a *Api) handler(method, url string, handler Endpoint) {
+	// TODO: recover from panic
 	log := ApiLog()
 	a.router.Handle(method, url, func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		log.StartTimer()
 		log.ResetTxId()
 		c := NewContext(w, r, p)
-		handler(c)
+		if err := handler(c); err != nil {
+			// TODO: handle error
+		}
 		log.EndTimer()
 		log.Logf("GET %s", url)
 	})
 }
 
-func (a *api) Get(url string, handler Endpoint) {
+func (a *Api) Get(url string, handler Endpoint) {
 	a.handler(http.MethodGet, url, handler)
 }
 
-func (a *api) Post(url string, handler Endpoint) {
+func (a *Api) Post(url string, handler Endpoint) {
 	a.handler(http.MethodPost, url, handler)
 }
 
-func (a *api) Put(url string, handler Endpoint) {
+func (a *Api) Put(url string, handler Endpoint) {
 	a.handler(http.MethodPut, url, handler)
 }
 
-func (a *api) Delete(url string, handler Endpoint) {
+func (a *Api) Delete(url string, handler Endpoint) {
 	a.handler(http.MethodDelete, url, handler)
 }
 
-func (a *api) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (a *Api) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	a.router.ServeHTTP(w, r)
 }
 
-func (a *api) Run() error {
+func (a *Api) Run() error {
 	ApiLog().Logf("running on %s", "http://localhost:8080")
 	return http.ListenAndServe(":8080", a)
 }

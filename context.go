@@ -1,4 +1,4 @@
-package main
+package fmk
 
 import (
 	"encoding/json"
@@ -8,6 +8,12 @@ import (
 
 type IContext interface {
 	Json(statusCode int, body interface{})
+
+	ValidateBody(body interface{}) error
+	ValidateHeader(header interface{}) error
+	ValidateQuery(query interface{}) error
+	ValidateParam(param interface{}) error
+	TenantDoc() *TenantDoc
 }
 
 type Context struct {
@@ -20,6 +26,27 @@ func (c *Context) Json(statusCode int, body interface{}) {
 	c.Res.Header().Set("Content-Type", "application/json")
 	c.Res.WriteHeader(statusCode)
 	json.NewEncoder(c.Res).Encode(body)
+}
+
+func (c *Context) TenantDoc() *TenantDoc {
+	// TODO implement me
+	return &TenantDoc{}
+}
+
+func (c *Context) ValidateBody(body interface{}) error {
+	return nil
+}
+
+func (c *Context) ValidateHeader(body interface{}) error {
+	return nil
+}
+
+func (c *Context) ValidateQuery(body interface{}) error {
+	return nil
+}
+
+func (c *Context) ValidateParam(param interface{}) error {
+	return nil
 }
 
 func NewContext(w http.ResponseWriter, r *http.Request, p httprouter.Params) *Context {
