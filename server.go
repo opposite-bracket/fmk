@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-type IApi interface {
+type IServer interface {
 	handler(method, url string, handler Endpoint)
 	Get(url string, handler Endpoint)
 	Post(url string, handler Endpoint)
@@ -17,17 +17,17 @@ type IApi interface {
 
 type Endpoint func(c *Context) error
 
-type Api struct {
+type Server struct {
 	router *httprouter.Router
 }
 
-func NewApi() *Api {
+func NewServer() *Server {
 	r := httprouter.New()
 
-	return &Api{r}
+	return &Server{r}
 }
 
-func (a *Api) handler(method, url string, handler Endpoint) {
+func (a *Server) handler(method, url string, handler Endpoint) {
 	// TODO: recover from panic
 	log := ApiLog()
 	a.router.Handle(method, url, func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -42,27 +42,27 @@ func (a *Api) handler(method, url string, handler Endpoint) {
 	})
 }
 
-func (a *Api) Get(url string, handler Endpoint) {
+func (a *Server) Get(url string, handler Endpoint) {
 	a.handler(http.MethodGet, url, handler)
 }
 
-func (a *Api) Post(url string, handler Endpoint) {
+func (a *Server) Post(url string, handler Endpoint) {
 	a.handler(http.MethodPost, url, handler)
 }
 
-func (a *Api) Put(url string, handler Endpoint) {
+func (a *Server) Put(url string, handler Endpoint) {
 	a.handler(http.MethodPut, url, handler)
 }
 
-func (a *Api) Delete(url string, handler Endpoint) {
+func (a *Server) Delete(url string, handler Endpoint) {
 	a.handler(http.MethodDelete, url, handler)
 }
 
-func (a *Api) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (a *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	a.router.ServeHTTP(w, r)
 }
 
-func (a *Api) Run() error {
+func (a *Server) Run() error {
 	ApiLog().Logf("running on %s", "http://localhost:8080")
 	return http.ListenAndServe(":8080", a)
 }
