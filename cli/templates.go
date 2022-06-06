@@ -9,8 +9,8 @@ const apiFile = `package {{.PackageName}}
 type IApi interface {
 	Create(c *fmk.Context) error
 	List(c *fmk.Context) error
-	Update(c *fmk.Context) error
-	Delete(c *fmk.Context) error
+	update(c *fmk.Context) error
+	delete(c *fmk.Context) error
 }
 
 var Endpoint IApi = &endpoint{}
@@ -45,7 +45,7 @@ func (m *endpoint) List(c *fmk.Context) error {
 	return nil
 }
 
-func (m *endpoint) Update(c *fmk.Context) error {
+func (m *endpoint) update(c *fmk.Context) error {
 
 	var filter ModelQuery
 	if err := c.ValidateQuery(filter); err != nil {
@@ -57,21 +57,21 @@ func (m *endpoint) Update(c *fmk.Context) error {
 		return err
 	}
 
-	if err := Service.Update(*c.TenantDoc(), filter, doc); err != nil {
+	if err := Service.update(*c.TenantDoc(), filter, doc); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (m *endpoint) Delete(c *fmk.Context) error {
+func (m *endpoint) delete(c *fmk.Context) error {
 
 	var filter ModelQuery
 	if err := c.ValidateQuery(filter); err != nil {
 		return err
 	}
 
-	if err := Service.Delete(*c.TenantDoc(), filter); err != nil {
+	if err := Service.delete(*c.TenantDoc(), filter); err != nil {
 		return err
 	}
 
@@ -90,8 +90,8 @@ import "github.com/opposite-bracket/fmk"
 type IService interface {
 	Create(tenant fmk.TenantDoc, doc Model) error
 	List(tenant fmk.TenantDoc, filter ModelQuery) error
-	Update(tenant fmk.TenantDoc, filter ModelQuery, update Model) error
-	Delete(tenant fmk.TenantDoc, filter ModelQuery) error
+	update(tenant fmk.TenantDoc, filter ModelQuery, update Model) error
+	delete(tenant fmk.TenantDoc, filter ModelQuery) error
 }
 
 var Service IService = &service{}
@@ -108,12 +108,12 @@ func (s *service) List(tenant fmk.TenantDoc, filter ModelQuery) error {
 	panic("implement me")
 }
 
-func (s *service) Update(tenant fmk.TenantDoc, filter ModelQuery, update Model) error {
+func (s *service) update(tenant fmk.TenantDoc, filter ModelQuery, update Model) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *service) Delete(tenant fmk.TenantDoc, filter ModelQuery) error {
+func (s *service) delete(tenant fmk.TenantDoc, filter ModelQuery) error {
 	//TODO implement me
 	panic("implement me")
 }
@@ -128,8 +128,8 @@ const modelFile = `package {{.PackageName}}
 type IModel interface {
 	Save() error
 	FindByFilter(filter Model) error
-	Update(filter Model, doc Model, id string) error
-	Delete(filter Model) error
+	update(filter Model, doc Model, id string) error
+	delete(filter Model) error
 }
 
 var Doc IModel = &Model{}
@@ -149,12 +149,12 @@ func (m *Model) FindByFilter(filter Model) error {
 	panic("implement me")
 }
 
-func (m *Model) Update(filter Model, doc Model, id string) error {
+func (m *Model) update(filter Model, doc Model, id string) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (m *Model) Delete(filter Model) error {
+func (m *Model) delete(filter Model) error {
 	//TODO implement me
 	panic("implement me")
 }

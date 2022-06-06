@@ -88,7 +88,7 @@ func (m *MockIModel) EXPECT() *MockIModelMockRecorder {
 // Delete mocks base method.
 func (m *MockIModel) Delete(filter interface{}) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", filter)
+	ret := m.ctrl.Call(m, "delete", filter)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -96,7 +96,7 @@ func (m *MockIModel) Delete(filter interface{}) error {
 // Delete indicates an expected call of Delete.
 func (mr *MockIModelMockRecorder) Delete(filter interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIModel)(nil).Delete), filter)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "delete", reflect.TypeOf((*MockIModel)(nil).Delete), filter)
 }
 
 // FindByFilter mocks base method.
@@ -116,7 +116,7 @@ func (mr *MockIModelMockRecorder) FindByFilter(filter, doc interface{}) *gomock.
 // Insert mocks base method.
 func (m *MockIModel) Insert(doc interface{}) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Insert", doc)
+	ret := m.ctrl.Call(m, "insert", doc)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -125,13 +125,13 @@ func (m *MockIModel) Insert(doc interface{}) (string, error) {
 // Insert indicates an expected call of Insert.
 func (mr *MockIModelMockRecorder) Insert(doc interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockIModel)(nil).Insert), doc)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "insert", reflect.TypeOf((*MockIModel)(nil).Insert), doc)
 }
 
 // Update mocks base method.
 func (m *MockIModel) Update(filter, toChange interface{}) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", filter, toChange)
+	ret := m.ctrl.Call(m, "update", filter, toChange)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -139,5 +139,5 @@ func (m *MockIModel) Update(filter, toChange interface{}) error {
 // Update indicates an expected call of Update.
 func (mr *MockIModelMockRecorder) Update(filter, toChange interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIModel)(nil).Update), filter, toChange)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "update", reflect.TypeOf((*MockIModel)(nil).Update), filter, toChange)
 }

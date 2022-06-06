@@ -68,7 +68,7 @@ func (d *MDb) Disconnect() error {
 	return nil
 }
 
-func (d *MDb) GetModel(colName string) IModel {
+func (d *MDb) GetModel(colName string) *MModel {
 	return &MModel{d.Collection(colName)}
 }
 
@@ -101,7 +101,7 @@ func (m *MModel) Insert(doc interface{}) (string, error) {
 	return singleResult.InsertedID.(string), nil
 }
 
-func (m *MModel) Update(filter interface{}, toChange interface{}) error {
+func (m *MModel) UpdateByFilter(filter interface{}, toChange interface{}) error {
 	filterBson := mapper.ConvertStructToBSONMap(filter, nil)
 
 	update := bson.D{
@@ -135,7 +135,7 @@ func (m *MModel) Update(filter interface{}, toChange interface{}) error {
 	return nil
 }
 
-func (m *MModel) FindAll(filter interface{}, sort interface{}, pagination MPagination, docs interface{}) error {
+func (m *MModel) FindByFilter(filter interface{}, sort interface{}, pagination MPagination, docs interface{}) error {
 
 	filterBson := mapper.ConvertStructToBSONMap(filter, nil)
 	if filterBson != nil {
@@ -172,7 +172,7 @@ func (m *MModel) FindAll(filter interface{}, sort interface{}, pagination MPagin
 	return nil
 }
 
-func (m *MModel) Delete(filter interface{}) error {
+func (m *MModel) DeleteByFilter(filter interface{}) error {
 
 	filterBson := mapper.ConvertStructToBSONMap(filter, nil)
 

@@ -1,6 +1,7 @@
 package fmk
 
 import (
+	"github.com/joho/godotenv"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -65,4 +66,8 @@ func (a *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (a *Server) Run() error {
 	ApiLog().Logf("running on %s", "http://localhost:8080")
 	return http.ListenAndServe(":8080", a)
+}
+
+func (a *Server) LoadEnv(filenames ...string) error {
+	return godotenv.Load(filenames...)
 }

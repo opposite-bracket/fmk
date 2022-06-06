@@ -12,7 +12,7 @@ type IDb interface {
 // for both all data associated to a single resource
 type IModel interface {
 	Insert(doc interface{}) (string, error)
-	Update(filter interface{}, toChange interface{}) error
-	FindAll(filter interface{}, sort interface{}, pagination MPagination, docs interface{}) error
-	Delete(filter interface{}) error
+	UpdateByFilter(filter interface{}, toChange interface{}) error
+	FindByFilter(filter interface{}, sort interface{}, pagination MPagination, docs interface{}) error
+	DeleteByFilter(filter interface{}) error
 }
