@@ -84,6 +84,33 @@ func (l *apiLog) Logf(format string, v ...any) {
 	fmt.Println(string(data))
 }
 
+func (l *apiLog) Log(v ...any) {
+	levelStr := ""
+	switch l.logLevel {
+	case INFO:
+		levelStr = "INFO"
+	case DEBUG:
+		levelStr = "DEBUG"
+	case WARNING:
+		levelStr = "WARNING"
+	case ERROR:
+		levelStr = "ERROR"
+	}
+
+	context := map[string]interface{}{
+		"payload":   fmt.Sprint(v...),
+		"level":     levelStr,
+		"timestamp": time.Now().Format("2006-01-02 15:04:05.000000"),
+	}
+
+	for k, v := range l.common {
+		context[k] = v
+	}
+
+	data, _ := json.Marshal(context)
+	fmt.Println(string(data))
+}
+
 // ApiLog gets a concurrent-safe api apiLogger instance
 func ApiLog() *apiLog {
 	once.Do(func() {
