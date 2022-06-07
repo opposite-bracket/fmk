@@ -3,10 +3,6 @@ package fmk
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/julienschmidt/httprouter"
-	"io"
-	"net/http"
-	"net/url"
 	"reflect"
 	"strings"
 )
@@ -17,60 +13,27 @@ const queryTag = "query"
 const headerTag = "header"
 const validationTag = "validate"
 
-func processParam(d interface{}, ps httprouter.Params) {
+type EType string
 
-	st := reflect.TypeOf(d)
+const (
+	FieldValidation   EType = "field"
+	GenericValidation       = "generic"
+)
 
-	for i := 0; i < st.NumField(); i++ {
-		f := st.Field(i)
-		pTag := f.Tag.Get(paramTag)
-		vTags := strings.Split(f.Tag.Get(validationTag), ",")
-
-		val := ps.ByName(pTag)
-
-		fmt.Printf(
-			"%d. %v (%v), param: '%v', validation: '%v', val: '%v'\n",
-			i+1,
-			f.Name,
-			f.Type.Name(),
-			pTag,
-			vTags,
-			val,
-		)
-	}
+type ErrorField struct {
+	EType   EType
+	Message string
 }
 
-func processHeader(d interface{}, h http.Header) {
-
-	st := reflect.TypeOf(d)
-
-	for i := 0; i < st.NumField(); i++ {
-		f := st.Field(i)
-		hTag := f.Tag.Get(headerTag)
-		vTags := strings.Split(f.Tag.Get(validationTag), ",")
-
-		val := h.Get(hTag)
-
-		fmt.Printf(
-			"%d. %v (%v), param: '%v', validation: '%v', val: '%v'\n",
-			i+1,
-			f.Name,
-			f.Type.Name(),
-			hTag,
-			vTags,
-			val,
-		)
-	}
-}
-
-func processBody(d interface{}, body io.ReadCloser) {
-	st := reflect.TypeOf(d)
+func (c *Context) ValidateBody(b interface{}) error {
+	bt := reflect.TypeOf(b)
 
 	var data map[string]interface{}
-	json.NewDecoder(body).Decode(&data)
+	json.NewDecoder(c.Req.Body).Decode(&data)
+	//issues := map[string] string
 
-	for i := 0; i < st.NumField(); i++ {
-		f := st.Field(i)
+	for i := 0; i < bt.NumField(); i++ {
+		f := bt.Field(i)
 		hTag := f.Tag.Get(jsonTag)
 		vTags := strings.Split(f.Tag.Get(validationTag), ",")
 
@@ -86,19 +49,43 @@ func processBody(d interface{}, body io.ReadCloser) {
 			val,
 		)
 	}
+
+	return nil
 }
 
-func processQuery(d interface{}, q url.Values) {
+func (c *Context) ValidateHeader(h interface{}) error {
+	ht := reflect.TypeOf(h)
 
-	//fmt.Fprintf(w, "hello, %s!\n", queryValues.Get("name"))
-	st := reflect.TypeOf(d)
+	for i := 0; i < ht.NumField(); i++ {
+		f := ht.Field(i)
+		hTag := f.Tag.Get(headerTag)
+		vTags := strings.Split(f.Tag.Get(validationTag), ",")
 
-	for i := 0; i < st.NumField(); i++ {
-		f := st.Field(i)
+		val := c.Req.Header.Get(hTag)
+
+		fmt.Printf(
+			"%d. %v (%v), param: '%v', validation: '%v', val: '%v'\n",
+			i+1,
+			f.Name,
+			f.Type.Name(),
+			hTag,
+			vTags,
+			val,
+		)
+	}
+
+	return nil
+}
+
+func (c *Context) ValidateQuery(q interface{}) error {
+	qt := reflect.TypeOf(q)
+
+	for i := 0; i < qt.NumField(); i++ {
+		f := qt.Field(i)
 		qTag := f.Tag.Get(queryTag)
 		vTags := strings.Split(f.Tag.Get(validationTag), ",")
 
-		val := q.Get(qTag)
+		val := c.Req.URL.Query().Get(qTag)
 
 		fmt.Printf(
 			"%d. %v (%v), param: '%v', validation: '%v', val: '%v'\n",
@@ -110,4 +97,30 @@ func processQuery(d interface{}, q url.Values) {
 			val,
 		)
 	}
+
+	return nil
+}
+
+func (c *Context) ValidateParam(p interface{}) error {
+
+	pt := reflect.TypeOf(p)
+
+	for i := 0; i < pt.NumField(); i++ {
+		f := pt.Field(i)
+		pTag := f.Tag.Get(paramTag)
+		vTags := strings.Split(f.Tag.Get(validationTag), ",")
+
+		val := c.Param.ByName(pTag)
+
+		fmt.Printf(
+			"%d. %v (%v), param: '%v', validation: '%v', val: '%v'\n",
+			i+1,
+			f.Name,
+			f.Type.Name(),
+			pTag,
+			vTags,
+			val,
+		)
+	}
+	return nil
 }

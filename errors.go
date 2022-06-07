@@ -22,7 +22,7 @@ type ApiErrorBuilder struct {
 	operation  string
 	category   ApiErrorCategory
 	statusCode int
-	message    string
+	messages   []ErrorField
 }
 
 // ApiError is the error that will be processed and formatted
@@ -32,7 +32,7 @@ type ApiError struct {
 	operation  string
 	category   ApiErrorCategory
 	statusCode int
-	message    string
+	messages   []ErrorField
 }
 
 func (e *ApiError) Service(service string) {
@@ -47,8 +47,10 @@ func (e *ApiError) Operation(operation string) {
 	e.operation = operation
 }
 
-func (e *ApiError) Message(message string) {
-	e.message = message
+func (e *ApiError) Message(etype EType, message string) {
+	e.messages = []ErrorField{
+		{EType: etype, Message: message},
+	}
 }
 
 // Error will print out an error with all its data
@@ -61,7 +63,7 @@ func (e *ApiError) Error() string {
 		e.operation,
 		e.category,
 		e.statusCode,
-		e.message,
+		e.messages,
 	)
 }
 
@@ -95,8 +97,10 @@ func (e *ApiErrorBuilder) StatusCode(statusCode int) *ApiErrorBuilder {
 
 // Message assigns value to error, so we can have more detailed
 // information on the error that was triggered
-func (e *ApiErrorBuilder) Message(message string) *ApiErrorBuilder {
-	e.message = message
+func (e *ApiErrorBuilder) Message(etype EType, message string) *ApiErrorBuilder {
+	e.messages = []ErrorField{
+		{EType: etype, Message: message},
+	}
 	return e
 }
 
@@ -114,7 +118,7 @@ func (e *ApiErrorBuilder) Build() *ApiError {
 		panic("category is required when creating an ApiError")
 	}
 
-	if e.message == "" {
+	if e.messages == nil || len(e.messages) == 0 {
 		panic("message is required when creating an ApiError")
 	}
 
@@ -123,6 +127,6 @@ func (e *ApiErrorBuilder) Build() *ApiError {
 		category:   e.category,
 		service:    e.service,
 		statusCode: e.statusCode,
-		message:    e.message,
+		messages:   e.messages,
 	}
 }

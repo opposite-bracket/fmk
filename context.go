@@ -33,22 +33,6 @@ func (c *Context) TenantDoc() *TenantDoc {
 	return &TenantDoc{}
 }
 
-func (c *Context) ValidateBody(body interface{}) error {
-	return nil
-}
-
-func (c *Context) ValidateHeader(body interface{}) error {
-	return nil
-}
-
-func (c *Context) ValidateQuery(body interface{}) error {
-	return nil
-}
-
-func (c *Context) ValidateParam(param interface{}) error {
-	return nil
-}
-
 func NewContext(w http.ResponseWriter, r *http.Request, p httprouter.Params) *Context {
 	return &Context{
 		Res:   w,

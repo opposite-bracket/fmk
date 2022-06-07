@@ -1,5 +1,7 @@
 # fmk
 
+Disclaimer: Not a utility to use
+
 ## Build, install cli
 
 add bin into shell path

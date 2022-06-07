@@ -43,7 +43,7 @@ func NewDb(dbUrl string, dbName string) (*MDb, error) {
 	if err != nil {
 		return nil, NewErrorBuilder().
 			Category(DBErrorCategory).
-			Message(err.Error()).
+			Message(GenericValidation, err.Error()).
 			Build()
 	}
 
@@ -62,7 +62,7 @@ func (d *MDb) Disconnect() error {
 	if err := d.Client().Disconnect(ctx); err != nil {
 		return NewErrorBuilder().
 			Category(DBErrorCategory).
-			Message(err.Error()).
+			Message(GenericValidation, err.Error()).
 			Build()
 	}
 	return nil
@@ -87,13 +87,13 @@ func (m *MModel) Insert(doc interface{}) (string, error) {
 			return "", NewErrorBuilder().
 				Category(DBErrorCategory).
 				StatusCode(http.StatusBadRequest).
-				Message("record duplicated").
+				Message(GenericValidation, "record duplicated").
 				Build()
 		} else {
 			return "", NewErrorBuilder().
 				Category(DBErrorCategory).
 				StatusCode(http.StatusInternalServerError).
-				Message(fmt.Sprintf(err.Error())).
+				Message(GenericValidation, fmt.Sprintf(err.Error())).
 				Build()
 		}
 	}
@@ -128,7 +128,7 @@ func (m *MModel) UpdateByFilter(filter interface{}, toChange interface{}) error 
 		return NewErrorBuilder().
 			Category(DBErrorCategory).
 			StatusCode(http.StatusInternalServerError).
-			Message(err.Error()).
+			Message(GenericValidation, err.Error()).
 			Build()
 	}
 
@@ -155,7 +155,7 @@ func (m *MModel) FindByFilter(filter interface{}, sort interface{}, pagination M
 	if err != nil {
 		return NewErrorBuilder().
 			Category(DBErrorCategory).
-			Message(err.Error()).
+			Message(GenericValidation, err.Error()).
 			Build()
 	}
 
@@ -165,7 +165,7 @@ func (m *MModel) FindByFilter(filter interface{}, sort interface{}, pagination M
 	if err := c.All(ctx, docs); err != nil {
 		return NewErrorBuilder().
 			Category(DBErrorCategory).
-			Message(err.Error()).
+			Message(GenericValidation, err.Error()).
 			Build()
 	}
 
@@ -183,7 +183,7 @@ func (m *MModel) DeleteByFilter(filter interface{}) error {
 	if err != nil {
 		return NewErrorBuilder().
 			Category(DBErrorCategory).
-			Message(err.Error()).
+			Message(GenericValidation, err.Error()).
 			Build()
 	}
 
