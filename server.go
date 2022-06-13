@@ -36,7 +36,9 @@ func (a *Server) handler(method, url string, handler Endpoint) {
 		log.ResetTxId()
 		c := NewContext(w, r, p)
 		if err := handler(c); err != nil {
-			// TODO: handle error
+			e := err.(*ApiError)
+
+			c.Json(e.StatusCode, *e)
 		}
 		log.EndTimer()
 		log.Logf("GET %s", url)
@@ -64,8 +66,8 @@ func (a *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *Server) Run() error {
-	ApiLog().Logf("running on %s", "http://localhost:8080")
-	return http.ListenAndServe(":8080", a)
+	ApiLog().Logf("running on %s", "http://localhost:9000")
+	return http.ListenAndServe(":9000", a)
 }
 
 func (a *Server) LoadEnv(filenames ...string) error {

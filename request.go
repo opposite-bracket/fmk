@@ -3,12 +3,13 @@ package fmk
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"reflect"
 	"strings"
 )
 
 const paramTag = "param"
-const jsonTag = "json"
+const bodyTag = "body"
 const queryTag = "query"
 const headerTag = "header"
 const validationTag = "validate"
@@ -21,8 +22,9 @@ const (
 )
 
 type ErrorField struct {
-	EType   EType
-	Message string
+	EType    EType  `json:"eType,omitempty"`
+	EName    string `json:"eName,omitempty"`
+	EMessage string `json:"eMessage,omitempty"`
 }
 
 func (c *Context) ValidateBody(b interface{}) error {
@@ -30,14 +32,27 @@ func (c *Context) ValidateBody(b interface{}) error {
 
 	var data map[string]interface{}
 	json.NewDecoder(c.Req.Body).Decode(&data)
-	//issues := map[string] string
+	err := ApiError{
+		Category:   RequestErrorCategory,
+		StatusCode: http.StatusBadRequest,
+	}
 
 	for i := 0; i < bt.NumField(); i++ {
 		f := bt.Field(i)
-		hTag := f.Tag.Get(jsonTag)
+		hTag := f.Tag.Get(bodyTag)
 		vTags := strings.Split(f.Tag.Get(validationTag), ",")
 
 		val := data[hTag]
+
+		for i := 0; i < len(vTags); i++ {
+			switch {
+			case vTags[i] == "required" && required(val):
+				err.AddGenericMessage(
+					FieldValidation,
+					"required field",
+				)
+			}
+		}
 
 		fmt.Printf(
 			"%d. %v (%v), param: '%v', validation: '%v', val: '%v'\n",
@@ -48,6 +63,10 @@ func (c *Context) ValidateBody(b interface{}) error {
 			vTags,
 			val,
 		)
+	}
+
+	if err.ContainsErrors() {
+		return &err
 	}
 
 	return nil

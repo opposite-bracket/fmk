@@ -11,7 +11,7 @@ func TestErrorBuilder(t *testing.T) {
 		Operation("op1").
 		Category(InternalServerErrorCategory).
 		StatusCode(http.StatusBadRequest).
-		Message(GenericValidation, "something went wrong").
+		AddGenericMessage(GenericValidation, "something went wrong").
 		Build()
 
 	expected := "srv1:op1:ISE:400:something went wrong"
@@ -23,39 +23,39 @@ func TestErrorBuilder(t *testing.T) {
 
 func TestApiError_Service(t *testing.T) {
 	actual := &ApiError{
-		service: "some value",
+		Service: "some value",
 	}
 
 	expected := "updated value"
 	actual.Service(expected)
 
-	if actual.service != expected {
+	if actual.Service != expected {
 		t.Errorf("got %s but shouldFail %s", actual, expected)
 	}
 }
 
 func TestApiError_Operation(t *testing.T) {
 	actual := &ApiError{
-		operation: "some value",
+		Operation: "some value",
 	}
 
 	expected := "updated value"
 	actual.Operation(expected)
 
-	if actual.operation != expected {
+	if actual.Operation != expected {
 		t.Errorf("got %s but shouldFail %s", actual, expected)
 	}
 }
 
 func TestApiError_StatusCode(t *testing.T) {
 	actual := &ApiError{
-		statusCode: 404,
+		StatusCode: 404,
 	}
 
 	expected := 200
 	actual.StatusCode(expected)
 
-	if actual.statusCode != expected {
+	if actual.StatusCode != expected {
 		t.Errorf("got %s but shouldFail %v", actual, expected)
 	}
 }
@@ -65,15 +65,15 @@ func TestApiError_Message(t *testing.T) {
 		GenericValidation, "some value",
 	}
 	actual := &ApiError{
-		messages: []ErrorField{
-			{expected.EType, expected.Message},
+		Messages: []ErrorField{
+			{expected.EType, expected.EMessage},
 		},
 	}
-	actual.Message(GenericValidation, expected.Message)
+	actual.AddGenericMessage(GenericValidation, expected.EMessage)
 
-	if actual.messages[0] != expected {
+	if actual.Messages[0] != expected {
 		t.Errorf(
-			"got %s but shouldFail %s", actual.messages[0],
+			"got %s but shouldFail %s", actual.Messages[0],
 			expected,
 		)
 	}

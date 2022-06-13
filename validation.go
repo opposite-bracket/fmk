@@ -6,7 +6,11 @@ import (
 )
 
 func required(v any) bool {
-	log.Print(reflect.TypeOf(v))
+	log.Printf("--------> type %s", reflect.TypeOf(v))
+	switch reflect.TypeOf(v) {
+	case nil:
+		return true
+	}
 	return false
 }
 

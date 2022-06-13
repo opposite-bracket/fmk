@@ -2,7 +2,6 @@ package fmk
 
 import (
 	"context"
-	"fmt"
 	"github.com/naamancurtis/mongo-go-struct-to-bson/mapper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -41,10 +40,11 @@ func NewDb(dbUrl string, dbName string) (*MDb, error) {
 	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbUrl))
 	if err != nil {
-		return nil, NewErrorBuilder().
-			Category(DBErrorCategory).
-			Message(GenericValidation, err.Error()).
-			Build()
+		err := ApiError{
+			Category: DBErrorCategory,
+		}
+		err.AddGenericMessage(GenericValidation, err.Error())
+		return nil, &err
 	}
 
 	ctx, cancel = context.WithTimeout(context.Background(), 1*time.Second)
@@ -60,10 +60,11 @@ func (d *MDb) Disconnect() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 	if err := d.Client().Disconnect(ctx); err != nil {
-		return NewErrorBuilder().
-			Category(DBErrorCategory).
-			Message(GenericValidation, err.Error()).
-			Build()
+		err := ApiError{
+			Category: DBErrorCategory,
+		}
+		err.AddGenericMessage(GenericValidation, err.Error())
+		return &err
 	}
 	return nil
 }
@@ -84,17 +85,19 @@ func (m *MModel) Insert(doc interface{}) (string, error) {
 	singleResult, err := m.InsertOne(ctx, docBson, insertOptions)
 	if err != nil {
 		if mongo.IsDuplicateKeyError(err) {
-			return "", NewErrorBuilder().
-				Category(DBErrorCategory).
-				StatusCode(http.StatusBadRequest).
-				Message(GenericValidation, "record duplicated").
-				Build()
+			err := ApiError{
+				Category:   DBErrorCategory,
+				StatusCode: http.StatusBadRequest,
+			}
+			err.AddGenericMessage(GenericValidation, "record duplicated")
+			return "", &err
 		} else {
-			return "", NewErrorBuilder().
-				Category(DBErrorCategory).
-				StatusCode(http.StatusInternalServerError).
-				Message(GenericValidation, fmt.Sprintf(err.Error())).
-				Build()
+			err := ApiError{
+				Category:   DBErrorCategory,
+				StatusCode: http.StatusInternalServerError,
+			}
+			err.AddGenericMessage(GenericValidation, err.Error())
+			return "", &err
 		}
 	}
 
@@ -117,19 +120,21 @@ func (m *MModel) UpdateByFilter(filter interface{}, toChange interface{}) error 
 
 	re := m.FindOneAndUpdate(ctx, filterBson, update, &returnOpt)
 	if re.Err() != nil {
-		return NewErrorBuilder().
-			Category(DBErrorCategory).
-			Message(re.Err().Error()).
-			StatusCode(http.StatusInternalServerError).
-			Build()
+		err := ApiError{
+			Category:   DBErrorCategory,
+			StatusCode: http.StatusInternalServerError,
+		}
+		err.AddGenericMessage(GenericValidation, err.Error())
+		return &err
 	}
 
 	if err := re.Decode(toChange); err != nil {
-		return NewErrorBuilder().
-			Category(DBErrorCategory).
-			StatusCode(http.StatusInternalServerError).
-			Message(GenericValidation, err.Error()).
-			Build()
+		err := ApiError{
+			Category:   DBErrorCategory,
+			StatusCode: http.StatusInternalServerError,
+		}
+		err.AddGenericMessage(GenericValidation, err.Error())
+		return &err
 	}
 
 	return nil
@@ -153,20 +158,23 @@ func (m *MModel) FindByFilter(filter interface{}, sort interface{}, pagination M
 
 	c, err := m.Find(ctx, filterBson)
 	if err != nil {
-		return NewErrorBuilder().
-			Category(DBErrorCategory).
-			Message(GenericValidation, err.Error()).
-			Build()
+		err := ApiError{
+			Category: DBErrorCategory,
+		}
+		err.AddGenericMessage(GenericValidation, err.Error())
+		return &err
 	}
 
 	ctx, cancel = context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	if err := c.All(ctx, docs); err != nil {
-		return NewErrorBuilder().
-			Category(DBErrorCategory).
-			Message(GenericValidation, err.Error()).
-			Build()
+		err := ApiError{
+			Category:   DBErrorCategory,
+			StatusCode: http.StatusInternalServerError,
+		}
+		err.AddGenericMessage(GenericValidation, err.Error())
+		return &err
 	}
 
 	return nil
@@ -181,10 +189,12 @@ func (m *MModel) DeleteByFilter(filter interface{}) error {
 
 	_, err := m.DeleteOne(ctx, filterBson)
 	if err != nil {
-		return NewErrorBuilder().
-			Category(DBErrorCategory).
-			Message(GenericValidation, err.Error()).
-			Build()
+		err := ApiError{
+			Category:   DBErrorCategory,
+			StatusCode: http.StatusInternalServerError,
+		}
+		err.AddGenericMessage(GenericValidation, err.Error())
+		return &err
 	}
 
 	return nil
