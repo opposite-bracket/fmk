@@ -28,25 +28,25 @@ type ApiError struct {
 func (e *ApiError) AddGenericMessage(etype EType, message string) {
 	if e.Messages == nil {
 		e.Messages = []ErrorField{
-			{EType: etype, EMessage: message},
+			{EType: etype, ETag: message},
 		}
 	} else {
 		e.Messages = append(
 			e.Messages,
-			ErrorField{EType: etype, EMessage: message},
+			ErrorField{EType: etype, ETag: message},
 		)
 	}
 }
 
-func (e *ApiError) AddFieldMessage(etype EType, name string, message string) {
+func (e *ApiError) AddFieldMessage(etype EType, tag string, message string) {
 	if e.Messages == nil {
 		e.Messages = []ErrorField{
-			{EType: etype, EName: name, EMessage: message},
+			{EType: etype, EField: tag, ETag: message},
 		}
 	} else {
 		e.Messages = append(
 			e.Messages,
-			ErrorField{EType: etype, EName: name, EMessage: message},
+			ErrorField{EType: etype, EField: tag, ETag: message},
 		)
 	}
 }

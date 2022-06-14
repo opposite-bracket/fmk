@@ -22,9 +22,9 @@ const (
 )
 
 type ErrorField struct {
-	EType    EType  `json:"eType,omitempty"`
-	EName    string `json:"eName,omitempty"`
-	EMessage string `json:"eMessage,omitempty"`
+	EType  EType  `json:"eType,omitempty"`
+	EField string `json:"eField,omitempty"`
+	ETag   string `json:"eTag,omitempty"`
 }
 
 func (c *Context) ValidateBody(b interface{}) error {
@@ -47,9 +47,16 @@ func (c *Context) ValidateBody(b interface{}) error {
 		for i := 0; i < len(vTags); i++ {
 			switch {
 			case vTags[i] == "required" && required(val):
-				err.AddGenericMessage(
+				err.AddFieldMessage(
 					FieldValidation,
-					"required field",
+					hTag,
+					vTags[i],
+				)
+			case vTags[i] == "email" && email(fmt.Sprintf("%v", val)):
+				err.AddFieldMessage(
+					FieldValidation,
+					hTag,
+					vTags[i],
 				)
 			}
 		}
