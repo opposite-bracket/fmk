@@ -24,28 +24,21 @@ func email(v string) bool {
 		return true
 	}
 	prefix := []rune(atSections[0])
-	p := rune('.')
-	d := rune('-')
-	u := rune('_')
-	a := rune('+')
 	for i, r := range []rune(atSections[0]) {
 		f := i == 0
 		l := i == len(prefix)-1
 		// first and last must be letters
 		if (f && !unicode.IsLetter(r)) || (l && !unicode.IsLetter(r)) {
 			return true
-		} else if !f && !l && (!unicode.IsLetter(r) && !unicode.IsDigit(r) && r != p && r != d && r != a && r != u) {
-			return true
 		}
 	}
 
+	domain := []rune(atSections[1])
 	for i, r := range []rune(atSections[1]) {
 		f := i == 0
-		l := i == len(prefix)-1
+		l := i == len(domain)-1
 		// first and last must be letters
 		if (f && !unicode.IsLetter(r)) || (l && !unicode.IsLetter(r)) {
-			return true
-		} else if !f && !l && (!unicode.IsLetter(r) && !unicode.IsDigit(r) && r != p && r != d && r != u) {
 			return true
 		}
 	}

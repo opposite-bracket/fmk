@@ -18,8 +18,9 @@ type EType string
 
 const (
 	HeaderFieldValidation EType = "headerField"
-	BodyFieldValidation   EType = "bodyField"
-	QueryFieldValidation  EType = "queryField"
+	BodyFieldValidation         = "bodyField"
+	QueryFieldValidation        = "queryField"
+	ParamFieldValidation        = "paramField"
 	GenericValidation           = "generic"
 )
 
@@ -62,16 +63,6 @@ func (c *Context) ValidateBody(b interface{}) error {
 				)
 			}
 		}
-
-		fmt.Printf(
-			"%d. %v (%v), param: '%v', validation: '%v', val: '%v'\n",
-			i+1,
-			f.Name,
-			f.Type.Name(),
-			hTag,
-			vTags,
-			val,
-		)
 	}
 
 	if err.ContainsErrors() {
@@ -111,16 +102,6 @@ func (c *Context) ValidateHeader(h interface{}) error {
 				)
 			}
 		}
-
-		fmt.Printf(
-			"%d. %v (%v), param: '%v', validation: '%v', val: '%v'\n",
-			i+1,
-			f.Name,
-			f.Type.Name(),
-			hTag,
-			vTags,
-			val,
-		)
 	}
 
 	if err.ContainsErrors() {
@@ -160,16 +141,6 @@ func (c *Context) ValidateQuery(q interface{}) error {
 				)
 			}
 		}
-
-		fmt.Printf(
-			"%d. %v (%v), param: '%v', validation: '%v', val: '%v'\n",
-			i+1,
-			f.Name,
-			f.Type.Name(),
-			qTag,
-			vTags,
-			val,
-		)
 	}
 
 	if err.ContainsErrors() {
@@ -197,28 +168,18 @@ func (c *Context) ValidateParam(p interface{}) error {
 			switch {
 			case vTags[i] == "required" && required(val):
 				err.AddFieldMessage(
-					QueryFieldValidation,
+					ParamFieldValidation,
 					pTag,
 					vTags[i],
 				)
 			case vTags[i] == "email" && email(fmt.Sprintf("%v", val)):
 				err.AddFieldMessage(
-					QueryFieldValidation,
+					ParamFieldValidation,
 					pTag,
 					vTags[i],
 				)
 			}
 		}
-
-		fmt.Printf(
-			"%d. %v (%v), param: '%v', validation: '%v', val: '%v'\n",
-			i+1,
-			f.Name,
-			f.Type.Name(),
-			pTag,
-			vTags,
-			val,
-		)
 	}
 
 	if err.ContainsErrors() {
