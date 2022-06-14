@@ -17,8 +17,10 @@ const validationTag = "validate"
 type EType string
 
 const (
-	FieldValidation   EType = "field"
-	GenericValidation       = "generic"
+	HeaderFieldValidation EType = "headerField"
+	BodyFieldValidation   EType = "bodyField"
+	QueryFieldValidation  EType = "queryField"
+	GenericValidation           = "generic"
 )
 
 type ErrorField struct {
@@ -48,13 +50,13 @@ func (c *Context) ValidateBody(b interface{}) error {
 			switch {
 			case vTags[i] == "required" && required(val):
 				err.AddFieldMessage(
-					FieldValidation,
+					BodyFieldValidation,
 					hTag,
 					vTags[i],
 				)
 			case vTags[i] == "email" && email(fmt.Sprintf("%v", val)):
 				err.AddFieldMessage(
-					FieldValidation,
+					BodyFieldValidation,
 					hTag,
 					vTags[i],
 				)
@@ -81,6 +83,10 @@ func (c *Context) ValidateBody(b interface{}) error {
 
 func (c *Context) ValidateHeader(h interface{}) error {
 	ht := reflect.TypeOf(h)
+	err := ApiError{
+		Category:   RequestErrorCategory,
+		StatusCode: http.StatusBadRequest,
+	}
 
 	for i := 0; i < ht.NumField(); i++ {
 		f := ht.Field(i)
@@ -88,6 +94,23 @@ func (c *Context) ValidateHeader(h interface{}) error {
 		vTags := strings.Split(f.Tag.Get(validationTag), ",")
 
 		val := c.Req.Header.Get(hTag)
+
+		for i := 0; i < len(vTags); i++ {
+			switch {
+			case vTags[i] == "required" && required(val):
+				err.AddFieldMessage(
+					HeaderFieldValidation,
+					hTag,
+					vTags[i],
+				)
+			case vTags[i] == "email" && email(fmt.Sprintf("%v", val)):
+				err.AddFieldMessage(
+					HeaderFieldValidation,
+					hTag,
+					vTags[i],
+				)
+			}
+		}
 
 		fmt.Printf(
 			"%d. %v (%v), param: '%v', validation: '%v', val: '%v'\n",
@@ -100,11 +123,19 @@ func (c *Context) ValidateHeader(h interface{}) error {
 		)
 	}
 
+	if err.ContainsErrors() {
+		return &err
+	}
+
 	return nil
 }
 
 func (c *Context) ValidateQuery(q interface{}) error {
 	qt := reflect.TypeOf(q)
+	err := ApiError{
+		Category:   RequestErrorCategory,
+		StatusCode: http.StatusBadRequest,
+	}
 
 	for i := 0; i < qt.NumField(); i++ {
 		f := qt.Field(i)
@@ -112,6 +143,23 @@ func (c *Context) ValidateQuery(q interface{}) error {
 		vTags := strings.Split(f.Tag.Get(validationTag), ",")
 
 		val := c.Req.URL.Query().Get(qTag)
+
+		for i := 0; i < len(vTags); i++ {
+			switch {
+			case vTags[i] == "required" && required(val):
+				err.AddFieldMessage(
+					QueryFieldValidation,
+					qTag,
+					vTags[i],
+				)
+			case vTags[i] == "email" && email(fmt.Sprintf("%v", val)):
+				err.AddFieldMessage(
+					QueryFieldValidation,
+					qTag,
+					vTags[i],
+				)
+			}
+		}
 
 		fmt.Printf(
 			"%d. %v (%v), param: '%v', validation: '%v', val: '%v'\n",
@@ -124,12 +172,19 @@ func (c *Context) ValidateQuery(q interface{}) error {
 		)
 	}
 
+	if err.ContainsErrors() {
+		return &err
+	}
+
 	return nil
 }
 
 func (c *Context) ValidateParam(p interface{}) error {
-
 	pt := reflect.TypeOf(p)
+	err := ApiError{
+		Category:   RequestErrorCategory,
+		StatusCode: http.StatusBadRequest,
+	}
 
 	for i := 0; i < pt.NumField(); i++ {
 		f := pt.Field(i)
@@ -137,6 +192,23 @@ func (c *Context) ValidateParam(p interface{}) error {
 		vTags := strings.Split(f.Tag.Get(validationTag), ",")
 
 		val := c.Param.ByName(pTag)
+
+		for i := 0; i < len(vTags); i++ {
+			switch {
+			case vTags[i] == "required" && required(val):
+				err.AddFieldMessage(
+					QueryFieldValidation,
+					pTag,
+					vTags[i],
+				)
+			case vTags[i] == "email" && email(fmt.Sprintf("%v", val)):
+				err.AddFieldMessage(
+					QueryFieldValidation,
+					pTag,
+					vTags[i],
+				)
+			}
+		}
 
 		fmt.Printf(
 			"%d. %v (%v), param: '%v', validation: '%v', val: '%v'\n",
@@ -148,5 +220,10 @@ func (c *Context) ValidateParam(p interface{}) error {
 			val,
 		)
 	}
+
+	if err.ContainsErrors() {
+		return &err
+	}
+
 	return nil
 }
