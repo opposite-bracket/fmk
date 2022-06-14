@@ -28,11 +28,6 @@ func (c *Context) Json(statusCode int, body interface{}) {
 	json.NewEncoder(c.Res).Encode(body)
 }
 
-func (c *Context) TenantDoc() *TenantDoc {
-	// TODO implement me
-	return &TenantDoc{}
-}
-
 func NewContext(w http.ResponseWriter, r *http.Request, p httprouter.Params) *Context {
 	return &Context{
 		Res:   w,
